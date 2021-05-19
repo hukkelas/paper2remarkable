@@ -17,7 +17,7 @@ import time
 
 from ..exceptions import _CalledProcessError
 from ..log import Logger
-from ..pdf_ops import prepare_pdf, blank_pdf, shrink_pdf
+from ..pdf_ops import prepare_pdf, blank_pdf, shrink_pdf, pad_pdf
 from ..utils import (
     assert_file_is_pdf,
     check_pdftool,
@@ -77,13 +77,13 @@ class Provider(metaclass=abc.ABCMeta):
 
         # Define the operations to run on the pdf. Providers can add others.
         self.operations = [("rewrite", self.rewrite_pdf)]
-        if crop == "center":
-            self.operations.append(("center", self.center_pdf))
-        elif crop == "right":
-            self.operations.append(("right", self.right_pdf))
-        elif crop == "left":
-            self.operations.append(("crop", self.crop_pdf))
-
+        #if crop == "center":
+        #    self.operations.append(("center", self.center_pdf))
+        #elif crop == "right":
+        #    self.operations.append(("right", self.right_pdf))
+        #elif crop == "left":
+        #    self.operations.append(("crop", self.crop_pdf))
+        self.operations.append(("pad", pad_pdf))
         if blank:
             self.operations.append(("blank", blank_pdf))
 
@@ -114,7 +114,7 @@ class Provider(metaclass=abc.ABCMeta):
 
     def shrink_pdf(self, filepath):
         return shrink_pdf(filepath, gs_path=self.gs_path)
-
+    
     def retrieve_pdf(self, pdf_url, filename):
         """ Download pdf from src and save to filename """
         # This must exist so that the LocalFile provider can overwrite it
@@ -217,11 +217,11 @@ class Provider(metaclass=abc.ABCMeta):
             assert_file_is_pdf(tmp_filename)
 
             intermediate_fname = tmp_filename
+            logger.info(f"Original file size: {os.stat(intermediate_fname).st_size/1024/1024:.0f}MB")
             for opname, op in self.operations:
                 intermediate_fname = op(intermediate_fname)
-
             shutil.copy(intermediate_fname, clean_filename)
-
+            logger.info(f"File size: {os.stat(intermediate_fname).st_size/1024/1024:.0f}MB")
             if self.debug:
                 print("Paused in debug mode in dir: %s" % working_dir)
                 print("Press enter to exit.")

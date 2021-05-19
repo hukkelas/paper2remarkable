@@ -18,6 +18,20 @@ from .crop import Cropper
 from .log import Logger
 
 logger = Logger()
+from pdfCropMargins import crop
+
+
+
+def pad_pdf(filepath):
+    with Pdf.open(filepath) as pdf:
+        _, _, W, H = list(pdf.pages[0].MediaBox)
+    right_pad = int(W*0.2)
+    bottom_pad = int(right_pad*H/W)
+    #logger.info(f"{filepath} Adding padding. Bottom={bottom_pad} right={right_pad}")
+    #subprocess.run(" ".join(["pdfcrop", "--margin", f"'0 0 {right_pad} {bottom_pad}'", filepath, filepath]), shell=True)
+    crop(["-p", "0", "-p4", "0", "200", "200", "0", "-a4", "-15", "0", "0", "0", str(filepath), "-o", str(filepath) + "_temp"])
+    os.rename(str(filepath) + "_temp", str(filepath))
+    return filepath
 
 
 def prepare_pdf(filepath, operation, pdftoppm_path="pdftoppm"):

@@ -45,13 +45,6 @@ class Informer:
         # Retrieve the paper information
         self.get_info(abs_url)
 
-        # we assume that the list of authors is surname only.
-        if len(self.authors) > 3:
-            authors = self.authors[0] + "_et_al"
-        else:
-            authors = "_".join(self.authors)
-        authors = authors.replace(" ", "_")
-        authors = clean_string(authors)
 
         # Clean the title and make it titlecase
         title = clean_string(self.title)
@@ -59,9 +52,7 @@ class Informer:
         title = title.replace(" ", "_")
         title = clean_string(title)
 
-        year = str(self.year)
-
-        name = authors + "_-_" + title + "_" + year + ".pdf"
+        name = self.authors[0] + str(self.year) + "-" + title + ".pdf"
         name = unidecode.unidecode(name)
         logger.info("Created filename: %s" % name)
         return name
