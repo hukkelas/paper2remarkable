@@ -219,6 +219,7 @@ class Provider(metaclass=abc.ABCMeta):
             intermediate_fname = tmp_filename
             logger.info(f"Original file size: {os.stat(intermediate_fname).st_size/1024/1024:.0f}MB")
             for opname, op in self.operations:
+                print(opname)
                 intermediate_fname = op(intermediate_fname)
             shutil.copy(intermediate_fname, clean_filename)
             logger.info(f"File size: {os.stat(intermediate_fname).st_size/1024/1024:.0f}MB")
